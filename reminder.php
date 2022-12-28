@@ -80,6 +80,24 @@ while ($loc = $connec->getRow())
 		}
 	}		
 }
+$supprtext = "";
+if (isset($_GET["delete"]))
+{
+	$connec->prepare("DELETE FROM Location WHERE idLocation = ?");
+	$id = $_GET["id"];
+	$bindid = new BindParameter("int",$id);
+	$connec->bind(array($bindid));
+	$connec->execute();
+	if (!$connec->isSuccess())
+	{
+		$supprtext = $connec->getLastError()."<br/>";
+	}
+	else
+	{
+		$supprtext = "Suppression OK<br/>";
+	}
+
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -123,6 +141,7 @@ function loaded()
 </style>
 </head>
 <body onload='loaded()';>
+<?php echo $supprtext; ?>
 <select name='location' id='location' onchange='changeloc()'>
 <option value='9999'>S&eacute;lectionner...</option>
 <?php

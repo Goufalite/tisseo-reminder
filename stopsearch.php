@@ -48,7 +48,7 @@ function terminusId(txt)
 }
 function generateUrl()
 {
-	urlbase = "https://api.tisseo.fr/v1/stops_schedules.json?number=15&stopsList=";
+	urlbase = "https://api.tisseo.fr/v2/stops_schedules.json?number=15&stopsList=";
 	url = urlbase;
 	if (document.getElementById("stopId").value != "")
 		url = urlbase + document.getElementById("stopId").value;
@@ -92,7 +92,7 @@ if (!isset($_GET["shortName"]) && !isset($_GET["lineId"]))
 }
 if (isset($_GET["shortName"]))
 {
-	$jsonline = json_decode(file_get_contents("https://api.tisseo.fr/v1/lines.json?shortName=".$_GET["shortName"]."&key=".$key));
+	$jsonline = json_decode(file_get_contents("https://api.tisseo.fr/v2/lines.json?shortName=".$_GET["shortName"]."&key=".$key));
 	foreach ($jsonline->lines->line as $l)
 	{
 		if ($l->bgXmlColor == "")
@@ -111,18 +111,18 @@ if (isset($_GET["lineId"]))
 	echo "<br/><label for='url'>URL</label><input type='text' size='120' name='url' id='url'/><br/>
 	<label for='label'>Label</label><input type='text size='120' id='label' name='label'/><input type='submit'/></form>";
 	
-	//echo file_get_contents("https://api.tisseo.fr/v1/stop_points.json?lineId=".$_GET["lineId"]."&displayDestinations=1&key=".$key);
-	$jsonstops = json_decode(file_get_contents("https://api.tisseo.fr/v1/stop_points.json?lineId=".$_GET["lineId"]."&displayDestinations=1&key=".$key));
+	//echo file_get_contents("https://api.tisseo.fr/v2/stop_points.json?lineId=".$_GET["lineId"]."&displayDestinations=1&key=".$key);
+	$jsonstops = json_decode(file_get_contents("https://api.tisseo.fr/v2/stop_points.json?lineId=".$_GET["lineId"]."&displayDestinations=1&key=".$key));
 	foreach ($jsonstops->physicalStops->physicalStop as $stop)
 	{
 		foreach ($stop->lines as $line)
 		{
 			echo "[".$line->short_name."]";
 		}
-		echo "<a href='#' onclick='stopId(".$stop->id.");'>".$stop->name."</a><a href='#' onclick='stopAreaId(".$stop->stopArea->id.");'>(".$stop->stopArea->name.")</a><br/>";
+		echo "<a href='#' onclick='stopId(\"".$stop->id."\");'>".$stop->name."</a><a href='#' onclick='stopAreaId(\"".$stop->stopArea->id."\");'>(\"".$stop->stopArea->name."\")</a><br/>";
 		foreach ($stop->destinations as $dest)
 		{
-			echo "--&gt; <a href='#' onclick='terminusId(".$dest->id.");'>".$dest->name."</a><br/>";
+			echo "--&gt; <a href='#' onclick='terminusId(\"".$dest->id."\");'>".$dest->name."</a><br/>";
 		}
 	}
 	

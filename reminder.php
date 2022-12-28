@@ -124,6 +124,7 @@ function loaded()
 </head>
 <body onload='loaded()';>
 <select name='location' id='location' onchange='changeloc()'>
+<option value='9999'>S&eacute;lectionner...</option>
 <?php
 foreach($elts as $i=>$v)
 {
@@ -151,6 +152,11 @@ $json = json_decode(file_get_contents($currloc["url"]."&key=".$key));
 $first = true;
 
 $arr = array();
+if (!isset($json->departures))
+{
+	echo "<br/>Entr&eacute;e inconnue.";
+	exit;
+}
 foreach($json->departures->departure as $d)
 {
 	$date = getdate(strtotime($d->dateTime));

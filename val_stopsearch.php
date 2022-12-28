@@ -18,12 +18,14 @@ try{
 
 if (isset($_POST))
 {
-	$connec->prepare("INSERT INTO Location (url, label, offset, ordre) values (?,?,0,9999)");
+	$connec->prepare("INSERT INTO Location (url, label, offset, ordre) values (?,?,?,9999)");
 	$url = $_POST["url"];
 	$bindurl = new BindParameter("string",$url);
 	$label = $_POST["label"];
 	$bindlabel = new BindParameter("string",$label);
-	$connec->bind(array($bindurl, $bindlabel));
+	$offset = $_POST["offset"];
+	$bindoffset = new BindParameter("int",$offset);
+	$connec->bind(array($bindurl, $bindlabel, $bindoffset));
 	$connec->execute();
 	if (!$connec->isSuccess())
 	{
@@ -31,7 +33,8 @@ if (isset($_POST))
 	}
 	else
 	{
-		echo "youpi";
+		echo "youpi<br/>";
+		echo "<a href='stopsearch.php'>Retour</a>";
 	}
 }
 

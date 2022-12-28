@@ -25,7 +25,7 @@ function onLoad(event) {
         //document.write(this.response.id + " "+ this.response.distance);
 		window.location.href="reminder.php?id="+this.response.id;
     } else {
-        document.write("Status de la réponse: %d (%s)", this.status, this.statusText);
+        document.write("Status de la rÃ©ponse: %d (%s)", this.status, this.statusText);
     }
 }
 

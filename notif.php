@@ -5,9 +5,9 @@ include "fonctions/connector.php";
 
 // mettez vos variables de chemin/scripts
 define("TISSEO_PATH","<chemin_de_notif.php>");
-define("PUSHBULLET_PATH","<script à appeler>");
+define("PUSHBULLET_PATH","<script a appeler>");
 
-// connexion à la base
+// connexion ï¿½ la base
 try
 {
 	$connec = new SQLiteConnector();
@@ -98,7 +98,7 @@ foreach($json->departures->departure as $d)
 		$cpt++;
 	}
 	
-	// on récupère les trois prochains départs
+	// on rÃ©cupÃ¨re les trois prochains dÃ©parts
 	if ($cpt ==3)
 	{
 		break;
@@ -116,7 +116,7 @@ if ($remind!="remindonly")
 	system(PUSHBULLET_PATH." Tisseo \"$out\"");
 }
 
-// affichage retardé
+// affichage retardÃ©
 if (preg_match("@^remind@",$remind))
 {
 	$cmd = "screen -dm -S remindTisseo".$id." bash -c 'sleep ".(($optimal-1)*60)." && (cd ".TISSEO_PATH." ; php -q notif.php ".$id.")' >/dev/null 2>&1";

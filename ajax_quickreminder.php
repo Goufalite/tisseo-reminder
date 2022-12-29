@@ -1,6 +1,9 @@
 <?php
 header("Content-type: application/json;charset=UTF-8");
 
+include "fonctions/config.inc.php";
+include "fonctions/connector.php";
+
 function distance($lat1, $lon1, $lat2, $lon2) {
 	// https://stackoverflow.com/a/11178145/555111
 	
@@ -23,6 +26,19 @@ function distance($lat1, $lon1, $lat2, $lon2) {
 
 if (isset($_POST["loc"]))
 {
+	try
+	{
+		$connec = new SQLiteConnector();
+		if ($connec->connect(DB,SQLITE3_OPEN_READWRITE))
+		{
+			throw new Exception($connec->getConnectionError);
+		}
+	}
+	catch(Exception $e)
+	{
+		var_dump($e);
+		die("Erreur lors de la connexion &agrave; la base : ".$e->getMessage());
+	}
 
 	$connec->rawQuery("SELECT coords, idLocation FROM Location");
 	$found = false;

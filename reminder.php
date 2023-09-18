@@ -42,12 +42,17 @@ function parseUrl($txt, $key)
 		{
 			$res = explode('|',parseStopPoint($matches[1],$criterias,$key));
 			$line = $res[0];
-			$terminus = $res[1];
-			$stationname = $res[2];
-			
+			$terminus = @$res[1];
+			$stationname = @$res[2];
 		}
-		
-		echo $line."&nbsp;".$stationname." --&gt; ".$terminus."<br/>\n";
+		if ($terminus == "")
+		{
+			echo "$line --> ??";
+		}
+		else
+		{
+			echo $line."&nbsp;".$stationname." --&gt; ".$terminus."<br/>\n";
+		}
 	}
 	echo "<br/>\n";
 }
@@ -55,6 +60,7 @@ function parseUrl($txt, $key)
 function parseStopPoint($url, $criterias, $key)
 {
 	$elt = json_decode(file_get_contents($url."/stop_points/".$criterias[0].".json?displayLines=1&key=$key"));
+	if (count($elt->physicalStops->physicalStop)==0) { return "??"; }
 	$mystation = $elt->physicalStops->physicalStop[0];	
 	$lines = $mystation->destinations;
 	if (count($lines) == 1)
@@ -130,7 +136,7 @@ catch (Exception $e)
 	die("fail query : ".$e->getMessage());
 }
 
-$connec->rawQuery("SELECT * from location order by ordre");
+$connec->rawQuery("SELECT * from location ".(isset($_GET["all"])?"":" WHERE ordre < 10000")." order by ordre");
 $currloc = null;
 $elts = Array();
 while ($loc = $connec->getRow())
@@ -181,7 +187,7 @@ while ($loc = $connec->getRow())
 $supprtext = "";
 if (isset($_GET["delete"]))
 {
-	$connec->prepare("DELETE FROM Location WHERE idLocation = ?");
+	$connec->prepare("UPDATE Location set ordre = 10000 WHERE idLocation = ?");
 	$id = $_GET["id"];
 	$bindid = new BindParameter("int",$id);
 	$connec->bind(array($bindid));
@@ -211,9 +217,9 @@ function loaded()
 	
 }
 
-function details()
+function edit()
 {
-	document.getElementById("details").style.display = "block";
+	document.getElementById("editform").style.display = "block";
 }
 </script>
 <style type='text/css'>
@@ -288,7 +294,7 @@ foreach($json->departures->departure as $d)
 		if ($first)
 		{
 			// estimation de départ
-			echo "<div id='departOptimal' onclick='details();'>D&eacute;part optimal dans ".intval(($ecart-$offset)/60)." minutes </div><br/>";
+			echo "<div id='departOptimal' onclick='details();'>D&eacute;part optimal dans ".intval(($ecart-$offset)/60)." minutes.<a style='text-decoration-line:none;' href='#' onclick='edit();'>✏️</a> </div><br/>";
 		
 		}
 		$arr[] =  "<tr><td class='busline' style='background-color:rgb".$d->line->color."'>".$d->line->shortName."</td><td>".substr(preg_split("@ @",$d->dateTime)[1],0,5)." -&gt; ".intval($ecart/60)." min".($d->realTime==="no"?"*":"")."</td></tr>\n";
@@ -300,6 +306,18 @@ foreach($json->departures->departure as $d)
 		$arr[] =  "<tr><td class='busline' style='background-color:rgb".$d->line->color."'>".$d->line->shortName."</td><td class='before'>".substr(preg_split("@ @",$d->dateTime)[1],0,5)." -&gt; ".intval($ecart/60)." min".($d->realTime==="no"?"*":"")."</td></tr>\n";
 	}
 }
+echo "<div id='editform' style='display:none'>";
+echo "<form method='POST' action='val_reminder.php'>";
+echo "<input type='hidden' name='id' value='".$currloc["idLocation"]."'/>";
+echo "<input type='text' size='5' name='offset' value='".$currloc["offset"]."'/>";
+echo "<input type='text' name='ordre' value='".$currloc["ordre"]."'/>";
+echo "<input type='text' name='coords' value='".$currloc["coords"]."'/><br/>";
+echo "<input type='text' name='label' value='".$currloc["label"]."'/><br/>";
+echo "<input type='submit'>";
+echo "<a style='text-decoration-line:none;' href='reminder.php?id=".$currloc["idLocation"]."&delete'>🗑️</a>";
+echo "</form>";
+echo "<br/>";
+echo "</div>";
 echo "<div id='details' style='display:block;'>";
 parseUrl($currloc["url"],$key);
 echo "</div>";
